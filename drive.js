@@ -21,6 +21,7 @@ const KEEPALIVE_MS = 800;
 
 let currentDirection = "stop";
 let keepaliveInterval = null;
+let autoModeActive = true;
 
 function fireCommand(argument) {
   particle
@@ -81,8 +82,24 @@ process.stdin.setEncoding("utf8");
 
 console.log("Drive mode active! Use arrow keys to control the rover.");
 console.log(`Drive speed: ${DRIVE_SPEED}, Turn speed: ${TURN_SPEED}`);
+console.log("Press SPACE to toggle auto mode (obstacle avoidance).");
 console.log("Usage: node drive.js [drive_speed] [turn_speed]");
 console.log("Press q or Ctrl+C to quit.\n");
+
+particle.getEventStream({ deviceId: DEVICE_ID, name: "auto", auth: TOKEN })
+  .then((stream) => {
+    stream.on("event", (event) => {
+      if (event.name === "auto/state") {
+        autoModeActive = event.data === "on";
+        console.log(autoModeActive ? "🤖 AUTO MODE ON" : "🛑 AUTO MODE OFF");
+      } else if (event.name === "auto/obstacle") {
+        console.log(`⚠️  Obstacle detected at ${event.data} cm — avoiding`);
+      }
+    });
+  })
+  .catch((err) => {
+    console.error("Could not subscribe to events:", err.body || err);
+  });
 
 let stopTimer;
 
@@ -94,6 +111,17 @@ process.stdin.on("data", (key) => {
       process.exit();
     }, 500);
     return;
+  }
+
+  if (key === " ") {
+    fireCommand("auto");
+    console.log("⏳ Toggling auto mode...");
+    return;
+  }
+
+  if (autoModeActive) {
+    autoModeActive = false;
+    console.log("🛑 AUTO MODE OFF (manual override)");
   }
 
   if (key === "\u001b[A") {
