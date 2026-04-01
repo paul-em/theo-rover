@@ -7,11 +7,11 @@ int in2 = D3;
 
 // Motor 2 (Right)
 int enb = A4;
-int in3 = D4;
-int in4 = D5;
+int in3 = D5;
+int in4 = D4;
 
-// HC-SR04 — power: many boards are unreliable on 3.3 V (weak / no echo). Prefer VIN (~5 V
-// when USB-powered) + common GND; then Echo must see ≤3.3 V (divider), Trig from Photon OK at 3.3 V.
+// HC-SR04 - power: many boards are unreliable on 3.3 V (weak / no echo). Prefer VIN (~5 V
+// when USB-powered) + common GND; then Echo must see <=3.3 V (divider), Trig from Photon OK at 3.3 V.
 int trigPin = D6;
 int echoPin = D7;
 
@@ -39,9 +39,9 @@ double lastDistanceCm = -1;
 unsigned long lastUltrasonicMs = 0;
 // HC-SR04 needs ~60 ms between triggers; also keeps loop free for cloud I/O.
 const unsigned long ULTRASONIC_INTERVAL_MS = 100;
-// ~2 cm round-trip ≈ 116 µs; shorter pulses are almost always noise / Trig coupling.
+// ~2 cm round-trip ~= 116 us; shorter pulses are almost always noise / Trig coupling.
 const uint32_t ECHO_MIN_VALID_US = 100;
-// Ignore Echo for a few µs after Trig (crosstalk); keep small so close range still works.
+// Ignore Echo for a few us after Trig (crosstalk); keep small so close range still works.
 const uint32_t ECHO_BLANK_US = 25;
 
 // Bounded echo measure: unsigned elapsed time only (avoids micros() deadline bugs).
@@ -113,7 +113,7 @@ void runAutoMode() {
     switch (autoState) {
         case AUTO_FORWARD:
             if (dist >= 0 && dist < OBSTACLE_DISTANCE_CM) {
-                // Obstacle detected — reverse
+                // Obstacle detected - reverse
                 setMotor(ena, in1, in2, "reverse", AUTO_SPEED);
                 setMotor(enb, in3, in4, "reverse", AUTO_SPEED);
                 autoState = AUTO_REVERSING;
